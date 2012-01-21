@@ -54,7 +54,7 @@ class Science_Chemistry_Coordinates {
      * Initialize the coordinates
      *
      * @param   array  $coords array of three floats (x,y,z)
-     * @throws  Science_Chemistry_BadCoordinatesException, if something other than a numeric array is passed
+     * @throws  Science_Chemistry_CoordinatesException, if something other than a numeric array is passed
      * @access  public
      */
     function init($coords) {
@@ -62,10 +62,10 @@ class Science_Chemistry_Coordinates {
             if (is_numeric($coords[0]) && is_numeric($coords[1]) && is_numeric($coords[2])) {
                 $this->_coords = $coords;
             } else {
-                throw new Science_Chemistry_BadCoordinatesException('Expecting a numeric array with three values');
+                throw new Science_Chemistry_CoordinatesException('Expecting a numeric array with three values');
             }
         } else {
-            throw new Science_Chemistry_BadCoordinatesException('Expecting a numeric array with three values');
+            throw new Science_Chemistry_CoordinatesException('Expecting a numeric array with three values');
         }
     }
 
@@ -74,12 +74,12 @@ class Science_Chemistry_Coordinates {
      *
      * @param   object  Science_Chemistry_Coordinates $coord
      * @return  float   distance
-     * @throws  Science_Chemistry_BadCoordinatesException, if something other than an instance of Science_Chemistry_Coordinates
+     * @throws  Science_Chemistry_CoordinatesException, if something other than an instance of Science_Chemistry_Coordinates
      * @access  public
      */
     function distance($cobj) {
-        if (is_object($cobj) 
-                && ($cobj instanceof Science_Chemistry_Coordinates)) {
+        if ( is_object($cobj) 
+             && ($cobj instanceof Science_Chemistry_Coordinates) ) {
             $xyz2 = $cobj->getCoordinates();
             $sum2 = 0;
             for ($i=0; $i<=2; $i++) {
@@ -87,7 +87,7 @@ class Science_Chemistry_Coordinates {
             }
             return sqrt($sum2);
         } else {
-            throw new Science_Chemistry_BadCoordinatesException('Expecting an instance of Science_Chemistry_Coordinates');
+            throw new Science_Chemistry_CoordinatesException('Expecting an instance of Science_Chemistry_Coordinates');
         }
     }
 
@@ -95,37 +95,47 @@ class Science_Chemistry_Coordinates {
      * Returns the array of coordinates
      *
      * @return  array   array (x,y,z) if initialized, null otherwise
+     * @throws  Science_Chemistry_CoordinatesException, if instance is unitialized
      * @access  public
      */
     function getCoordinates() {
-        return $this->_coords;
+        if (!is_null($this->_coords)) {
+            return $this->_coords;
+        } else {
+            throw new Science_Chemistry_CoordinatesException('Unitialized instance of Science_Chemistry_Coordinates');
+        }
     }
 
     /**
      * Returns a string representation of the coordinates: x y z
      *
-     * @return  string 
+     * @return  string Representation of the 3D coordinates
+     * @throws  Science_Chemistry_CoordinatesException, if instance is unitialized
      * @access  public
      */
-    function toString() {
-        for ($i=0; $i<count($this->coords); $i++)
-            $tmp[$i] = sprintf("%10.4f",$this->coords[$i]);
-        return implode(" ",$tmp);
+    function __toString() {
+        if (!is_null($this->_coords)) {
+            return '<'.$this->_coords[0].','.$this->_coords[1].','.$this->_coords[2].'>';
+        } else {
+            throw new Science_Chemistry_CoordinatesException('Unitialized instance of Science_Chemistry_Coordinates');
+        }
     }
 
     /**
      * Returns a CML representation of the coordinates
      *
-     * @return  string
+     * @return  string   CML fragment representing the 3D coordinates
+     * @throws  Science_Chemistry_CoordinatesException, if instance is unitialized
      * @access  public
      */
     function toCML() {
-        $out = "<coordinate3 builtin=\"xyz3\">";
-        $tmp = array();
-        for ($i=0; $i < count($this->coords); $i++)
-            $tmp[] = trim(sprintf("%10.4f", $this->coords[$i]));
-        $out .= implode(" ",$tmp)."</coordinate3>\n";
-        return $out;
+        if (!is_null($this->_coords)) {
+            $out = "<coordinate3 builtin=\"xyz3\">";
+            $out .= $this->_coords[0].' '.$this->_coords[1].' '.$this->_coords[2].'</coordinate3>';
+            return $out;
+        } else {
+            throw new Science_Chemistry_CoordinatesException('Unitialized instance of Science_Chemistry_Coordinates');
+        }
     }
 
 } // end of class Science_Chemistry_Coordinates
